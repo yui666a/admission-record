@@ -11,8 +11,6 @@ Private Sub Worksheet_Change(ByVal Target As Range)
     lastRowIdNum = Cells(Rows.Count, customerIdColumn).End(xlUp).Row
     lastRowNameNum = Cells(Rows.Count, customerNameColumn).End(xlUp).Row
     If lastRowIdNum > lastRowNameNum Then lastRowNum = lastRowIdNum Else lastRowNum = lastRowNameNum
-    Cells(lastRowNum, 1) = Format(Date, "yyyy/mm/dd") 'column A(参拝日付)
-    Cells(lastRowNum, 7) = Format(Time, "hh:mm:ss") 'column G(参拝時間)
 
     ' 会員DBから会員番号で会員情報を取得
     Dim sheetCustomerList As Worksheet
@@ -20,13 +18,24 @@ Private Sub Worksheet_Change(ByVal Target As Range)
     Set rowNum = sheetCustomerList.Range("A:A").Find(What:=Cells(lastRowNum, 4), LookAt:=xlWhole)
 
     If rowNum Is Nothing Then
-      ' MsgBox "みつかりませんでした。"
+      MsgBox "会員情報が見つかりませんでした。登録お願いします"
     Else
-      ' MsgBox rowNum.Row
-      Cells(lastRowNum, 2) = sheetCustomerList.Cells(rowNum.Row, 6) ' 所属
-      Cells(lastRowNum, 3) = sheetCustomerList.Cells(rowNum.Row, 2) ' 氏名
-      Cells(lastRowNum, 5) = GetAge(sheetCustomerList.Cells(rowNum.Row, 4)) ' 年齢
-      Cells(lastRowNum, 6) = sheetCustomerList.Cells(rowNum.Row, 5) ' 性別
+      Set customerData = sheetCustomerList.Range("A" & rowNum.Row).Resize(1, 9)
+      Dim before(3 - 1) As String
+      Dim after(3 - 1) As String
+      before(0) = Format(Date, "yyyy/mm/dd") 'column A(参拝日付)
+      before(1) = customerData(6) ' 所属
+      before(2) = customerData(2) ' 氏名
+
+      after(0) = GetAge(customerData(4)) ' 年齢
+      after(1) = customerData(5) ' 性別
+      after(2) = Format(Time, "hh:mm:ss") 'column G(参拝時間)
+      Set inputAreaBefore = Range("A" & lastRowNum).Resize(1, 3)
+      Set inputAreaAfter  = Range("E" & lastRowNum).Resize(1, 3)
+
+      '配列を代入
+      inputAreaBefore.Value = before
+      inputAreaAfter.Value = after
     End If
   End If
 
@@ -34,7 +43,7 @@ Private Sub Worksheet_Change(ByVal Target As Range)
   Application.ScreenUpdating = True
 End Sub
 
-Function GetAge(ByVal birthday As String) As Integer
+Function GetAge(ByVal birthday As String) As String
   Dim age As Integer
   If IsDate(birthday) = False Then
       GetAge = -1
@@ -46,5 +55,5 @@ Function GetAge(ByVal birthday As String) As Integer
   If Date < DateSerial(Year(Now), Month(birthday), Day(birthday)) Then
       age = age - 1
   End If
-  GetAge = CInt(age)
+  GetAge = age
 End Function
