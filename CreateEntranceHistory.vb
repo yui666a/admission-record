@@ -17,7 +17,9 @@ Private Sub Worksheet_Change(ByVal Target As Range)
     ' 会員DBから会員番号で会員情報を取得
     Dim sheetCustomerList As Worksheet
     Set sheetCustomerList = Worksheets(sheetCustomerName)
-    Set rowNum = sheetCustomerList.Range("A:A").Find(What:=Cells(lastRowNum, 4), LookAt:=xlWhole)
+    Set customerId = Cells(lastRowNum, 4)
+    Cells(lastRowNum, 4) = StrConv(customerId, vbNarrow)
+    Set rowNum = sheetCustomerList.Range("A:A").Find(What:=customerId, LookAt:=xlWhole)
 
     If rowNum Is Nothing Then
       ' 一致する会員番号が存在しなかった
@@ -26,13 +28,13 @@ Private Sub Worksheet_Change(ByVal Target As Range)
     Else
       ' 会員情報を取得できた
       Set customerData = sheetCustomerList.Range("A" & rowNum.Row).Resize(1, 9)
-      Dim before(3 - 1) As String ' A~C列
-      Dim after(3 - 1) As String ' E~G列
+      Dim before(3 - 1) ' A~C列
+      Dim after(3 - 1) ' E~G列
       before(0) = Format(Date, "yyyy/mm/dd") 'column A(参拝日付)
       before(1) = customerData(6) ' 所属
       before(2) = customerData(2) ' 氏名
 
-      after(0) = GetAge(customerData(4)) ' 年齢
+      after(0) = CInt(GetAge(customerData(4))) ' 年齢
       after(1) = customerData(5) ' 性別
       after(2) = Format(Time, "hh:mm:ss") 'column G(参拝時間)
 
