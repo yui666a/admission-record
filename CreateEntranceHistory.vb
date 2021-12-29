@@ -3,8 +3,8 @@ Private Const customerNameColumn As Integer = 3
 Private Const sheetCustomerName As String = "会員名簿"
 
 Private Sub Worksheet_Change(ByVal Target As Range)
-  ' 画面の更新を抑制（False）
-  Application.ScreenUpdating = False
+  Application.ScreenUpdating = False ' 画面の更新を抑制
+  Application.EnableEvents= False ' イベントの発生を無効
 
   ' D列に変化があった時
   If Not Intersect(Target, Range("C:D")) Is Nothing Then
@@ -39,8 +39,8 @@ Private Sub Worksheet_Change(ByVal Target As Range)
     End If
   End If
 
-  ' 画面の更新を復活（True）
-  Application.ScreenUpdating = True
+  Application.ScreenUpdating = True ' 画面の更新を復活
+  Application.EnableEvents= True 'イベントの発生を有効
 End Sub
 
 Function GetAge(ByVal birthday As String) As String
