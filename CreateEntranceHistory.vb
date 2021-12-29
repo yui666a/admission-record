@@ -17,7 +17,9 @@ Private Sub Worksheet_Change(ByVal Target As Range)
     ' 会員DBから会員番号で会員情報を取得
     Dim sheetCustomerList As Worksheet
     Set sheetCustomerList = Worksheets(sheetCustomerName)
-    Set rowNum = sheetCustomerList.Range("A:A").Find(What:=Cells(lastRowNum, 4), LookAt:=xlWhole)
+    Set customerId = Cells(lastRowNum, 4)
+    Cells(lastRowNum, 4) = StrConv(customerId, vbNarrow)
+    Set rowNum = sheetCustomerList.Range("A:A").Find(What:=customerId, LookAt:=xlWhole)
 
     If rowNum Is Nothing Then
       ' 一致する会員番号が存在しなかった
