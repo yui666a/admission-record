@@ -3,7 +3,10 @@ Private Const customerNameColumn As Integer = 3
 Private Const sheetCustomerName As String = "会員名簿"
 
 Private Sub Worksheet_Change(ByVal Target As Range)
-' D列に変化があった時
+  ' 画面の更新を抑制（False）
+  Application.ScreenUpdating = False
+
+  ' D列に変化があった時
   If Not Intersect(Target, Range("C:D")) Is Nothing Then
     lastRowIdNum = Cells(Rows.Count, customerIdColumn).End(xlUp).Row
     lastRowNameNum = Cells(Rows.Count, customerNameColumn).End(xlUp).Row
@@ -23,4 +26,7 @@ Private Sub Worksheet_Change(ByVal Target As Range)
       MsgBox rowNum.Row
     End If
   End If
+
+  ' 画面の更新を復活（True）
+  Application.ScreenUpdating = True
 End Sub
