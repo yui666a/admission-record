@@ -28,13 +28,13 @@ Private Sub Worksheet_Change(ByVal Target As Range)
     Else
       ' 会員情報を取得できた
       Set customerData = sheetCustomerList.Range("A" & rowNum.Row).Resize(1, 9)
-      Dim before(3 - 1) As String ' A~C列
-      Dim after(3 - 1) As String ' E~G列
+      Dim before(3 - 1) ' A~C列
+      Dim after(3 - 1) ' E~G列
       before(0) = Format(Date, "yyyy/mm/dd") 'column A(参拝日付)
       before(1) = customerData(6) ' 所属
       before(2) = customerData(2) ' 氏名
 
-      after(0) = GetAge(customerData(4)) ' 年齢
+      after(0) = CInt(GetAge(customerData(4))) ' 年齢
       after(1) = customerData(5) ' 性別
       after(2) = Format(Time, "hh:mm:ss") 'column G(参拝時間)
 
