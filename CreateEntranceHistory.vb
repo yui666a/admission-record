@@ -13,6 +13,7 @@ Private Sub Worksheet_Change(ByVal Target As Range)
     lastRowNameNum = Cells(Rows.Count, customerNameColumn).End(xlUp).Row
     If lastRowIdNum > lastRowNameNum Then lastRowNum = lastRowIdNum Else lastRowNum = lastRowNameNum
     ' lastRowNum = lastRowIdNum
+    If Not Cells(lastRowNum, 1) = "" Then Exit Function End If
 
     ' 会員DBから会員番号で会員情報を取得
     Dim sheetCustomerList As Worksheet
