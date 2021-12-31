@@ -38,12 +38,14 @@ Private Sub Workbook_Open()
     Exit Sub
   End If
   Set newData = sheetVisitLog.Range("A" & rowNum.Row).Resize(lastRowNum - rowNum.Row + 1, 7)
+  
   ' 前日まで繰り返す
   Do While DateDiff("d", checkingDate, today)
     fileName = Replace(checkingDate, "/", "-")
     Dim csvFile As String
     csvFile = ActiveWorkbook.Path & "/log/" & fileName & ".csv"
     Open csvFile For Output As #1
+    Print #1, "所属,参拝者,会員番号,年齢,性別,参拝時間,備考（参拝理由など）," & vbCr;
     Dim j As Long
 
     Dim womanNum As Integer, manNum As Integer
@@ -59,7 +61,7 @@ Private Sub Workbook_Open()
       sheetDailyTotalization.Range("A" & lastRowNumReport + offsetLine).Value = checkingDate
       Dim zeros(12) As Integer
       Erase zeros
-      Set inputArea = Range("B" & lastRowNumReport + offsetLine).Resize(1, 13)
+      Set inputArea = sheetDailyTotalization.Range("B" & lastRowNumReport + offsetLine).Resize(1, 13)
       inputArea.Value = zeros
       GoTo Continue
     Else
