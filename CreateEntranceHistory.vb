@@ -4,16 +4,20 @@ Private Const sheetCustomerName As String = "会員名簿"
 
 Private Sub Worksheet_Change(ByVal Target As Range)
   Application.ScreenUpdating = False ' 画面の更新を抑制
-  Application.EnableEvents= False ' イベントの発生を無効
+  Application.EnableEvents = False ' イベントの発生を無効
 
   ' D列に変化があった時
   If Not Intersect(Target, Range("D:D")) Is Nothing Then
     lastRowIdNum = Cells(Rows.Count, customerIdColumn).End(xlUp).Row
     ' ' 名前を入力されることを想定して記述．当分利用されないと思われるため，コメントアウト
-    lastRowNameNum = Cells(Rows.Count, customerNameColumn).End(xlUp).Row
-    If lastRowIdNum > lastRowNameNum Then lastRowNum = lastRowIdNum Else lastRowNum = lastRowNameNum
-    ' lastRowNum = lastRowIdNum
-    If Not Cells(lastRowNum, 1) = "" Then Exit Function End If
+    ' lastRowNameNum = Cells(Rows.Count, customerNameColumn).End(xlUp).Row
+    ' If lastRowIdNum > lastRowNameNum Then lastRowNum = lastRowIdNum Else lastRowNum = lastRowNameNum
+    lastRowNum = lastRowIdNum
+    If Not Cells(lastRowNum, 1) = "" Then
+      Application.ScreenUpdating = True ' 画面の更新を復活
+      Application.EnableEvents = True 'イベントの発生を有効
+      Exit Sub
+    End If
 
     ' 会員DBから会員番号で会員情報を取得
     Dim sheetCustomerList As Worksheet
@@ -41,7 +45,7 @@ Private Sub Worksheet_Change(ByVal Target As Range)
 
       ' 値を出力する範囲を指定
       Set inputAreaBefore = Range("A" & lastRowNum).Resize(1, 3)
-      Set inputAreaAfter  = Range("E" & lastRowNum).Resize(1, 3)
+      Set inputAreaAfter = Range("E" & lastRowNum).Resize(1, 3)
       '配列を代入
       inputAreaBefore.Value = before
       inputAreaAfter.Value = after
@@ -49,7 +53,7 @@ Private Sub Worksheet_Change(ByVal Target As Range)
   End If
 
   Application.ScreenUpdating = True ' 画面の更新を復活
-  Application.EnableEvents= True 'イベントの発生を有効
+  Application.EnableEvents = True 'イベントの発生を有効
 End Sub
 
 Function GetAge(ByVal birthday As String) As String
