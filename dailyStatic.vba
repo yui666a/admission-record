@@ -34,7 +34,7 @@ Sub aaa()
   If DateDiff("d", checkDate, today) = 0 Then
     Exit Sub
   End If
-  Set newData = sheetVisitLog.Range("A" & rowNum.Row + 1).Resize(lastRowNum - rowNum.Row + 1, 7)
+  Set newData = sheetVisitLog.Range("A" & rowNum.Row).Resize(lastRowNum - rowNum.Row + 1, 7)
   ' 前日まで繰り返す
   Do While DateDiff("d", checkDate, today)
     Dim womanNum As Integer, manNum As Integer
