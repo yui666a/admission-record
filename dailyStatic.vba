@@ -15,7 +15,7 @@ Private Sub Workbook_Open()
 
   today = Format(Date, "yyyy/mm/dd")
   lastRowNumReport = sheetDailyTotalization.Cells(Rows.Count, 1).End(xlUp).Row
-  checkingDate = Cells(lastRowNumReport, 1)
+  checkingDate = sheetDailyTotalization.Cells(lastRowNumReport, 1)
   offsetLine = 0
   If checkingDate = "参拝日付" Then ' 過去の集計情報が存在しなかった場合
     checkingDate = sheetVisitLog.Cells(2, 1)
@@ -24,6 +24,8 @@ Private Sub Workbook_Open()
 
   If checkingDate = "" Then ' 過去の参拝者履歴が存在しなかった場合
     MsgBox "シート「参拝者履歴」のA2セルに参拝者履歴が存在しなかったため，統計情報を出力しませんでした"
+    Application.ScreenUpdating = True ' 画面の更新を復活
+    Application.EnableEvents = True 'イベントの発生を有効
     Exit Sub
   End If
 
@@ -31,6 +33,8 @@ Private Sub Workbook_Open()
   lastRowNum = sheetVisitLog.Cells(Rows.Count, 1).End(xlUp).Row
   
   If DateDiff("d", checkingDate, today) = 0 Then
+    Application.ScreenUpdating = True ' 画面の更新を復活
+    Application.EnableEvents = True 'イベントの発生を有効
     Exit Sub
   End If
   Set newData = sheetVisitLog.Range("A" & rowNum.Row).Resize(lastRowNum - rowNum.Row + 1, 7)
@@ -46,7 +50,7 @@ Private Sub Workbook_Open()
     Dim FoundCell As Range, FirstCell As Range
     Set FoundCell = newData.Find(What:=checkingDate)
     If FoundCell Is Nothing Then
-      Range("A" & lastRowNumReport + offsetLine).Value = checkingDate
+      sheetDailyTotalization.Range("A" & lastRowNumReport + offsetLine).Value = checkingDate
       Dim zeros(12) As Integer
       Erase zeros
       Set inputArea = Range("B" & lastRowNumReport + offsetLine).Resize(1, 13)
@@ -92,7 +96,7 @@ Private Sub Workbook_Open()
     newLine(11) = generations(7)
     newLine(12) = generations(8)
     newLine(13) = generations(9) + generations(10) + generations(11)
-    Set inputArea = Range("A" & lastRowNumReport + offsetLine).Resize(1, 14)
+    Set inputArea = sheetDailyTotalization.Range("A" & lastRowNumReport + offsetLine).Resize(1, 14)
     inputArea.Value = newLine
 Continue:
     checkingDate = DateAdd("d", 1, Format(checkingDate, "yyyy/mm/dd") + " 00:00:00")
