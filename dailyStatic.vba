@@ -22,12 +22,14 @@ Sub aaa()
 
 
   checkDate = lastExportedDate
-  if Not DateDiff("d", checkDate, today) Then
-   Exit Sub
+  checkDate = DateAdd("d", 1, Format(checkDate, "yyyy/mm/dd") + " 00:00:00")
+  if DateDiff("d", checkDate, today) = 0 Then
+    Exit Sub
   End If
   Set newData = sheetVisitLog.Range("A" & rowNum.Row + 1).Resize(lastRowNum - rowNum.Row, 7)
   ' 前日まで繰り返す
-  While DateDiff("d", checkDate, today)
+  offsetLine = 1
+  Do While DateDiff("d", checkDate, today)
     Dim womanNum As Integer, manNum As Integer
     womanNum = 0
     manNum = 0
@@ -38,6 +40,11 @@ Sub aaa()
     Dim FoundCell As Range, FirstCell As Range, Target As Range
     Set FoundCell = newData.Find(What:=checkDate)
     If FoundCell Is Nothing Then
+      Range("A" & lastRowNumReport + offsetLine).Value = checkDate
+      Dim aaa(12) As Integer
+      Set inputAreaBefore = Range("B" & lastRowNumReport + offsetLine).Resize(1, 13)
+      inputAreaBefore.Value = aaa
+      GoTo Continue ' Continue: の行へ処理を飛ばす
     Else
         Set FirstCell = FoundCell
         Set Target = FoundCell
@@ -79,10 +86,12 @@ Sub aaa()
     newLine(11) = generations(7)
     newLine(12) = generations(8)
     newLine(13) = generations(9) + generations(10) + generations(11)
-    Set inputAreaBefore = Range("A" & lastRowNumReport + 1).Resize(1, 14)
+    Set inputAreaBefore = Range("A" & lastRowNumReport + offsetLine).Resize(1, 14)
     inputAreaBefore.Value = newLine
+    Continue: 
     checkDate = DateAdd("d", 1, Format(checkDate, "yyyy/mm/dd") + " 00:00:00")
-  Wend
+    offsetLine = offsetLine + 1
+  Loop
 
   Application.ScreenUpdating = True ' 画面の更新を復活
   Application.EnableEvents = True 'イベントの発生を有効
