@@ -17,13 +17,13 @@ Sub aaa()
   lastRowNumReport = sheetCustomerList.Cells(Rows.Count, 1).End(xlUp).Row
   lastExportedDate = Cells(lastRowNumReport, 1)
   offsetLine = 0
-  if lastExportedDate = "参拝日付" Then ' 過去の集計情報が存在しなかった場合
+  If lastExportedDate = "参拝日付" Then ' 過去の集計情報が存在しなかった場合
     lastExportedDate = sheetVisitLog.Cells(2, 1)
     offsetLine = offsetLine + 1
   End If
-  if lastExportedDate = "" Then ' 過去の参拝者履歴が存在しなかった場合
+  If lastExportedDate = "" Then ' 過去の参拝者履歴が存在しなかった場合
     MsgBox "シート「参拝者履歴」のA2セルに参拝者履歴が存在しなかったため，統計情報を出力しませんでした"
-    exit Sub
+    Exit Sub
   End If
 
   Set rowNum = sheetVisitLog.Range("A:A").Find(What:=lastExportedDate, LookAt:=xlWhole, SearchDirection:=xlNext)
@@ -31,7 +31,7 @@ Sub aaa()
 
 
   checkDate = lastExportedDate
-  if DateDiff("d", checkDate, today) = 0 Then
+  If DateDiff("d", checkDate, today) = 0 Then
     Exit Sub
   End If
   Set newData = sheetVisitLog.Range("A" & rowNum.Row + 1).Resize(lastRowNum - rowNum.Row + 1, 7)
@@ -95,7 +95,7 @@ Sub aaa()
     newLine(13) = generations(9) + generations(10) + generations(11)
     Set inputAreaBefore = Range("A" & lastRowNumReport + offsetLine).Resize(1, 14)
     inputAreaBefore.Value = newLine
-    Continue: 
+Continue:
     checkDate = DateAdd("d", 1, Format(checkDate, "yyyy/mm/dd") + " 00:00:00")
     offsetLine = offsetLine + 1
   Loop
