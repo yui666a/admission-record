@@ -1,6 +1,6 @@
 Private Const sheetNameDailyTotalization = "参拝者集計"
 Private Const sheetNameVisitLog = "参拝者履歴"
-' Sub aaa()
+
 Private Sub Workbook_Open()
   ' ファイル起動時に実行
 '
@@ -31,7 +31,7 @@ Private Sub Workbook_Open()
 
   Set rowNum = sheetVisitLog.Range("A:A").Find(What:=checkingDate, LookAt:=xlWhole, SearchDirection:=xlNext)
   lastRowNum = sheetVisitLog.Cells(Rows.Count, 1).End(xlUp).Row
-  
+
   If DateDiff("d", checkingDate, today) = 0 Then
     Application.ScreenUpdating = True ' 画面の更新を復活
     Application.EnableEvents = True 'イベントの発生を有効
@@ -40,6 +40,12 @@ Private Sub Workbook_Open()
   Set newData = sheetVisitLog.Range("A" & rowNum.Row).Resize(lastRowNum - rowNum.Row + 1, 7)
   ' 前日まで繰り返す
   Do While DateDiff("d", checkingDate, today)
+    fileName = Replace(checkingDate, "/", "-")
+    Dim csvFile As String
+    csvFile = ActiveWorkbook.Path & "/log/" & fileName & ".csv"
+    Open csvFile For Output As #1
+    Dim j As Long
+
     Dim womanNum As Integer, manNum As Integer
     womanNum = 0
     manNum = 0
@@ -66,7 +72,15 @@ Private Sub Workbook_Open()
         generation = FoundCell.Offset(0, 4).Value ¥ 10
         generations(generation) = generations(generation) + 1
 
+        ' ファイル出力
+        j = 1
+        Do While FoundCell.Offset(0, j+1).Value <> ""
+          Print #1, FoundCell.Offset(0, j).Value & ",";
+          j = j + 1
+        Loop
+        Print #1, FoundCell.Offset(0, j).Value & vbCr;
     End If
+
     Do While Not FoundCell Is Nothing
         Set FoundCell = newData.FindNext(FoundCell)
         If FoundCell.Address = FirstCell.Address Then
@@ -79,6 +93,14 @@ Private Sub Workbook_Open()
             End If
             generation = FoundCell.Offset(0, 4).Value ¥ 10
             generations(generation) = generations(generation) + 1
+
+            ' ファイル出力
+            j = 1
+            Do While FoundCell.Offset(0, j+1).Value <> ""
+              Print #1, FoundCell.Offset(0, j).Value & ",";
+              j = j + 1
+            Loop
+            Print #1, FoundCell.Offset(0, j).Value & vbCr;
         End If
     Loop
     Dim newLine(13)
@@ -101,6 +123,7 @@ Private Sub Workbook_Open()
 Continue:
     checkingDate = DateAdd("d", 1, Format(checkingDate, "yyyy/mm/dd") + " 00:00:00")
     offsetLine = offsetLine + 1
+    Close #1
   Loop
 
   Application.ScreenUpdating = True ' 画面の更新を復活
