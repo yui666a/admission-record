@@ -37,13 +37,16 @@ Private Sub Workbook_Open()
     Application.EnableEvents = True 'イベントの発生を有効
     Exit Sub
   End If
+
   Set newData = sheetVisitLog.Range("A" & rowNum.Row).Resize(lastRowNum - rowNum.Row + 1, 7)
-  
+
   ' 前日まで繰り返す
   Do While DateDiff("d", checkingDate, today)
     fileName = Replace(checkingDate, "/", "-")
     Dim csvFile As String
-    csvFile = ActiveWorkbook.Path & "/log/" & fileName & ".csv"
+    splitedDate = Split(fileName, "-")
+    dirName = splitedDate(0) & "-" & splitedDate(1)
+    csvFile = ActiveWorkbook.Path & "/dailyLog/" & dirName & "/" & fileName & ".csv"
     Open csvFile For Output As #1
     Print #1, "所属,参拝者,会員番号,年齢,性別,参拝時間,備考（参拝理由など）," & vbCr;
     Dim j As Long
