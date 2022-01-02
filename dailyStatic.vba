@@ -1,14 +1,23 @@
-Private Const sheetNameDailyTotalization = "参拝者集計"
+Private Const sheetNameDailyTotalization = "参拝者日別集計"
+Private Const sheetNameMonthlyTotalization = "参拝者月別集計"
 Private Const sheetNameVisitLog = "参拝者履歴"
 
 Private Sub Workbook_Open()
   ' ファイル起動時に実行
-'
-' ここに説明文記述
-'
-
+  '
+  ' ここに説明文記述
+  '
   Application.ScreenUpdating = False ' 画面の更新を抑制
   Application.EnableEvents = False ' イベントの発生を無効
+
+  ' dailyStatic
+  monthlyStatic
+
+  Application.ScreenUpdating = True ' 画面の更新を復活
+  Application.EnableEvents = True 'イベントの発生を有効
+End Sub
+
+Sub dailyStatic()
 
   Set sheetDailyTotalization = Worksheets(sheetNameDailyTotalization)
   Set sheetVisitLog = Worksheets(sheetNameVisitLog)
@@ -45,7 +54,7 @@ Private Sub Workbook_Open()
     fileName = Replace(checkingDate, "/", "-")
     Dim csvFile As String
     splitedDate = Split(fileName, "-")
-    dirName = splitedDate(0) & "-" & splitedDate(1)
+    dirName = splitedDate(0)
     csvFile = ActiveWorkbook.Path & "/dailyLog/" & dirName & "/" & fileName & ".csv"
     Open csvFile For Output As #1
     Print #1, "所属,参拝者,会員番号,年齢,性別,参拝時間,備考（参拝理由など）," & vbCr;
@@ -61,7 +70,7 @@ Private Sub Workbook_Open()
     Dim FoundCell As Range, FirstCell As Range
     Set FoundCell = newData.Find(What:=checkingDate)
     If FoundCell Is Nothing Then
-      sheetDailyTotalization.Range("A" & lastRowNumReport + offsetLine).Value = checkingDate
+      sheetDailyTotalization.Range("A" & lastRowNumReport + offsetLine).Value = Format(checkingDate, "yyyy/mm/dd")
       Dim zeros(12) As Integer
       Erase zeros
       Set inputArea = sheetDailyTotalization.Range("B" & lastRowNumReport + offsetLine).Resize(1, 13)
@@ -109,7 +118,7 @@ Private Sub Workbook_Open()
         End If
     Loop
     Dim newLine(13)
-    newLine(0) = checkingDate
+    newLine(0) = Format(checkingDate, "yyyy/mm/dd")
     newLine(1) = manNum + womanNum
     newLine(2) = manNum
     newLine(3) = womanNum
@@ -130,8 +139,78 @@ Continue:
     offsetLine = offsetLine + 1
     Close #1
   Loop
-
-  Application.ScreenUpdating = True ' 画面の更新を復活
-  Application.EnableEvents = True 'イベントの発生を有効
 End Sub
 
+Sub monthlyStatic()
+
+  Set sheetDailyTotalization = Worksheets(sheetNameDailyTotalization)
+  Set sheetMonthlyTotalization = Worksheets(sheetNameMonthlyTotalization)
+
+  today = Format(Date, "yyyy/mm/dd")
+  lastRowNumReport = sheetMonthlyTotalization.Cells(Rows.Count, 1).End(xlUp).Row
+  checkingMonth = sheetMonthlyTotalization.Cells(lastRowNumReport, 1)
+  offsetLine = 0
+  If checkingMonth = "月" Then ' 過去の集計情報が存在しなかった場合
+    checkingMonth = sheetDailyTotalization.Cells(3, 1)
+    offsetLine = offsetLine + 1
+  End If
+
+  If checkingMonth = "" Then ' 過去の参拝者履歴が存在しなかった場合
+    MsgBox "シート「参拝者履歴」のA2セルに参拝者履歴が存在しなかったため，統計情報を出力しませんでした"
+    Application.ScreenUpdating = True ' 画面の更新を復活
+    Application.EnableEvents = True 'イベントの発生を有効
+    Exit Sub
+  End If
+
+  Set rowNum = sheetDailyTotalization.Range("A:A").Find(What:=checkingMonth, LookAt:=xlPart, LookIn:=xlValues, SearchDirection:=xlNext)
+  If rowNum Is Nothing Then
+    Application.ScreenUpdating = True ' 画面の更新を復活
+    Application.EnableEvents = True 'イベントの発生を有効
+    Exit Sub
+  end if
+  lastRowNum = sheetDailyTotalization.Cells(Rows.Count, 1).End(xlUp).Row
+  If DateDiff("m", checkingMonth, today) = 0 Then
+    Application.ScreenUpdating = True ' 画面の更新を復活
+    Application.EnableEvents = True 'イベントの発生を有効
+    Exit Sub
+  End If
+  Set newData = sheetDailyTotalization.Range("A" & rowNum.Row).Resize(lastRowNum - rowNum.Row + 1, 14)
+  ' 前月まで繰り返す
+  Do While DateDiff("m", checkingMonth, today)
+    Dim newLine(13)
+    Erase newLine
+    newLine(0) = Format(checkingMonth, "yyyy/mm")
+    ' 該当月(checkingMonth)を全件取得
+    Dim FoundCell As Range, FirstCell As Range
+    Set FoundCell = newData.Find(What:=newLine(0), LookAt:=xlPart, LookIn:=xlValues, SearchDirection:=xlNext)
+    If FoundCell Is Nothing Then
+      sheetMonthlyTotalization.Range("A" & lastRowNumReport + offsetLine).Value = Format(checkingMonth, "yyyy/mm")
+      Dim zeros(12) As Integer
+      Erase zeros
+      Set inputArea = sheetMonthlyTotalization.Range("B" & lastRowNumReport + offsetLine).Resize(1, 13)
+      inputArea.Value = zeros
+      GoTo Continue
+    Else
+      Set FirstCell = FoundCell
+      Dim i As Integer ' インデックス用の変数
+      For i = 1 To 13
+        newLine(i) = newLine(i) + FoundCell.Offset(0, i).Value
+      Next
+    End If
+    Do While Not FoundCell Is Nothing
+      Set FoundCell = newData.FindNext(FoundCell)
+      If FoundCell.Address = FirstCell.Address Then
+        Exit Do
+      Else
+        For i = 1 To 13
+          newLine(i) = newLine(i) + FoundCell.Offset(0, i).Value
+        Next
+      End If
+    Loop
+    Set inputArea = sheetMonthlyTotalization.Range("A" & lastRowNumReport + offsetLine).Resize(1, 14)
+    inputArea.Value = newLine
+Continue:
+    checkingMonth = DateAdd("m", 1, Format(checkingMonth, "yyyy/mm/dd") + " 00:00:00")
+    offsetLine = offsetLine + 1
+  Loop
+End Sub
