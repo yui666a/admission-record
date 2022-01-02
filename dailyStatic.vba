@@ -3,9 +3,8 @@ Private Const sheetNameMonthlyTotalization = "参拝者月別集計"
 Private Const sheetNameVisitLog = "参拝者履歴"
 
 Private Sub Workbook_Open()
-  ' ファイル起動時に実行
   '
-  ' ここに説明文記述
+  ' ファイル起動時に実行
   '
   Application.ScreenUpdating = False ' 画面の更新を抑制
   Application.EnableEvents = False ' イベントの発生を無効
@@ -77,7 +76,29 @@ Sub dailyStatic()
       inputArea.Value = zeros
       GoTo Continue
     Else
-        Set FirstCell = FoundCell
+      Set FirstCell = FoundCell
+      If FoundCell.Offset(0, 5).Value = "女" Then
+        womanNum = womanNum + 1
+      Else
+        manNum = manNum + 1
+      End If
+      generation = FoundCell.Offset(0, 4).Value ¥ 10
+      generations(generation) = generations(generation) + 1
+
+      ' ファイル出力
+      j = 1
+      Do While FoundCell.Offset(0, j+1).Value <> ""
+        Print #1, FoundCell.Offset(0, j).Value & ",";
+        j = j + 1
+      Loop
+      Print #1, FoundCell.Offset(0, j).Value & vbCr;
+    End If
+
+    Do While Not FoundCell Is Nothing
+      Set FoundCell = newData.FindNext(FoundCell)
+      If FoundCell.Address = FirstCell.Address Then
+        Exit Do
+      Else
         If FoundCell.Offset(0, 5).Value = "女" Then
           womanNum = womanNum + 1
         Else
@@ -93,29 +114,7 @@ Sub dailyStatic()
           j = j + 1
         Loop
         Print #1, FoundCell.Offset(0, j).Value & vbCr;
-    End If
-
-    Do While Not FoundCell Is Nothing
-        Set FoundCell = newData.FindNext(FoundCell)
-        If FoundCell.Address = FirstCell.Address Then
-            Exit Do
-        Else
-            If FoundCell.Offset(0, 5).Value = "女" Then
-              womanNum = womanNum + 1
-            Else
-              manNum = manNum + 1
-            End If
-            generation = FoundCell.Offset(0, 4).Value ¥ 10
-            generations(generation) = generations(generation) + 1
-
-            ' ファイル出力
-            j = 1
-            Do While FoundCell.Offset(0, j+1).Value <> ""
-              Print #1, FoundCell.Offset(0, j).Value & ",";
-              j = j + 1
-            Loop
-            Print #1, FoundCell.Offset(0, j).Value & vbCr;
-        End If
+      End If
     Loop
     Dim newLine(13)
     newLine(0) = Format(checkingDate, "yyyy/mm/dd")
