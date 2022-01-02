@@ -167,11 +167,11 @@ Sub monthlyStatic()
     Exit Sub
   End If
 
-  checkingDate = Format(checkingDate, "yyyy/mm/dd")
+  checkingMonth = Format(checkingMonth, "yyyy/mm/dd")
   Set rowNum = sheetDailyTotalization.Range("A:A").Find(What:=checkingMonth, LookAt:=xlPart, LookIn:=xlValues, SearchDirection:=xlNext)
-  Do while rowNum Is Nothing and DateDiff("m", checkingDate, today) '存在しなかった場合，次の日を検索
-    checkingDate = DateAdd("m", 1, Format(checkingDate, "yyyy/mm/dd") + " 00:00:00")
-    checkingDate = Format(checkingDate, "yyyy/mm/dd")
+  Do while rowNum Is Nothing and DateDiff("m", checkingMonth, today) '存在しなかった場合，次の日を検索
+    checkingMonth = DateAdd("m", 1, Format(checkingMonth, "yyyy/mm/dd") + " 00:00:00")
+    checkingMonth = Format(checkingMonth, "yyyy/mm/dd")
     Set rowNum = sheetDailyTotalization.Range("A:A").Find(What:=checkingMonth, LookAt:=xlPart, LookIn:=xlValues, SearchDirection:=xlNext)
   Loop
 
