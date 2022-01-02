@@ -1,6 +1,8 @@
 Private Const sheetNameDailyTotalization = "参拝者日別集計"
 Private Const sheetNameMonthlyTotalization = "参拝者月別集計"
 Private Const sheetNameVisitLog = "参拝者履歴"
+Private Const sheetNameCompareWithLastYear = "前年同月との比較"
+
 
 Private Sub Workbook_Open()
   '
@@ -11,6 +13,7 @@ Private Sub Workbook_Open()
 
   dailyStatic
   monthlyStatic
+  compareWithLastYear
 
   Application.ScreenUpdating = True ' 画面の更新を復活
   Application.EnableEvents = True 'イベントの発生を有効
@@ -223,6 +226,81 @@ Sub monthlyStatic()
     inputArea.Value = newLine
 Continue:
     checkingMonth = DateAdd("m", 1, Format(checkingMonth, "yyyy/mm/dd") + " 00:00:00")
+    offsetLine = offsetLine + 1
+  Loop
+End Sub
+
+Sub compareWithLastYear()
+
+  Set sheetCompareWithLastYear = Worksheets(sheetNameCompareWithLastYear)
+  Set sheetMonthlyTotalization = Worksheets(sheetNameMonthlyTotalization)
+
+  today = Format(Date, "yyyy/mm/dd")
+  lastRowNumReport = sheetCompareWithLastYear.Cells(Rows.Count, 1).End(xlUp).Row
+  checkingMonth = sheetCompareWithLastYear.Cells(lastRowNumReport, 1)
+  checkingMonth = Format(checkingMonth, "yyyy/mm")
+
+  offsetLine = 0
+  if checkingMonth = "対象月" Then
+    checkingMonth = DateAdd("m", -1, Format(today, "yyyy/mm/dd") + " 00:00:00")
+    checkingMonth = Format(checkingMonth, "yyyy/mm")
+    offsetLine = offsetLine + 1
+  end If
+
+  Set rowNum = sheetMonthlyTotalization.Range("A:A").Find(What:=checkingMonth, LookAt:=xlPart, LookIn:=xlValues, SearchDirection:=xlNext)
+  Do while rowNum Is Nothing and DateDiff("m", checkingMonth, today) > -1 '存在しなかった場合，次の日を検索
+    checkingMonth = DateAdd("m", 1, Format(checkingMonth, "yyyy/mm/dd") + " 00:00:00")
+    checkingMonth = Format(checkingMonth, "yyyy/mm")
+    Set rowNum = sheetMonthlyTotalization.Range("A:A").Find(What:=checkingMonth, LookAt:=xlPart, LookIn:=xlValues, SearchDirection:=xlNext)
+  Loop
+
+  If rowNum Is Nothing Then
+    Application.ScreenUpdating = True ' 画面の更新を復活
+    Application.EnableEvents = True 'イベントの発生を有効
+    Exit Sub
+  end if
+
+  If DateDiff("m", checkingMonth, today) = -1 Then
+    Application.ScreenUpdating = True ' 画面の更新を復活
+    Application.EnableEvents = True 'イベントの発生を有効
+    Exit Sub
+  End If
+  ' 前月まで繰り返す
+  Do While DateDiff("m", checkingMonth, today)
+    Dim newLine(14)
+    Erase newLine
+    newLine(0) = Format(checkingMonth, "yyyy/mm")
+    monthOfLastYear = DateAdd("yyyy", -1, Format(checkingMonth, "yyyy/mm/dd") + " 00:00:00")
+    monthOfLastYear = Format(monthOfLastYear, "yyyy/mm")
+    newLine(1) = monthOfLastYear
+    Dim targetYearCell As Range, lastYearCell As Range
+    Set targetYearCell = sheetMonthlyTotalization.Range("A:A").Find(What:=newLine(0), LookAt:=xlPart, LookIn:=xlValues, SearchDirection:=xlNext)
+    Set lastYearCell = sheetMonthlyTotalization.Range("A:A").Find(What:=newLine(1), LookAt:=xlPart, LookIn:=xlValues, SearchDirection:=xlNext)
+    If targetYearCell Is Nothing Then
+      sheetCompareWithLastYear.Range("A" & lastRowNumReport + offsetLine).Value = Format(checkingMonth, "yyyy/mm")
+      sheetCompareWithLastYear.Range("B" & lastRowNumReport + offsetLine).Value = Format(monthOfLastYear, "yyyy/mm")
+      Dim zeros(12) As Integer
+      Erase zeros
+      Set inputArea = sheetCompareWithLastYear.Range("C" & lastRowNumReport + offsetLine).Resize(1, 13)
+      inputArea.Value = zeros
+      GoTo Continue
+    Else
+      Dim i As Integer ' インデックス用の変数
+      if lastYearCell Is Nothing Then
+        For i = 2 To 14
+          newLine(i) = targetYearCell.Offset(0, i - 1).Value
+        Next
+      else
+        For i = 2 To 14
+          newLine(i) = targetYearCell.Offset(0, i - 1).Value - lastYearCell.Offset(0, i - 1).Value
+        Next
+      end if
+    End If
+    Set inputArea = sheetCompareWithLastYear.Range("A" & lastRowNumReport + offsetLine).Resize(1, 15)
+    inputArea.Value = newLine
+Continue:
+    checkingMonth = DateAdd("m", 1, Format(checkingMonth, "yyyy/mm/dd") + " 00:00:00")
+    checkingMonth = Format(checkingMonth, "yyyy/mm")
     offsetLine = offsetLine + 1
   Loop
 End Sub
