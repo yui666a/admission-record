@@ -9,7 +9,7 @@ Private Sub Workbook_Open()
   Application.ScreenUpdating = False ' 画面の更新を抑制
   Application.EnableEvents = False ' イベントの発生を無効
 
-  ' dailyStatic
+  dailyStatic
   monthlyStatic
 
   Application.ScreenUpdating = True ' 画面の更新を復活
@@ -36,8 +36,13 @@ Sub dailyStatic()
     Application.EnableEvents = True 'イベントの発生を有効
     Exit Sub
   End If
-
+  checkingDate = Format(checkingDate, "yyyy/mm/dd")
   Set rowNum = sheetVisitLog.Range("A:A").Find(What:=checkingDate, LookAt:=xlWhole, SearchDirection:=xlNext)
+  Do while rowNum Is Nothing and DateDiff("d", checkingDate, today) '存在しなかった場合，次の日を検索
+    checkingDate = DateAdd("d", 1, Format(checkingDate, "yyyy/mm/dd") + " 00:00:00")
+    checkingDate = Format(checkingDate, "yyyy/mm/dd")
+    Set rowNum = sheetVisitLog.Range("A:A").Find(What:=checkingDate, LookAt:=xlWhole, SearchDirection:=xlNext)
+  Loop
   lastRowNum = sheetVisitLog.Cells(Rows.Count, 1).End(xlUp).Row
 
   If DateDiff("d", checkingDate, today) = 0 Then
@@ -135,6 +140,7 @@ Sub dailyStatic()
     inputArea.Value = newLine
 Continue:
     checkingDate = DateAdd("d", 1, Format(checkingDate, "yyyy/mm/dd") + " 00:00:00")
+    checkingDate = Format(checkingDate, "yyyy/mm/dd")
     offsetLine = offsetLine + 1
     Close #1
   Loop
@@ -161,7 +167,14 @@ Sub monthlyStatic()
     Exit Sub
   End If
 
+  checkingDate = Format(checkingDate, "yyyy/mm/dd")
   Set rowNum = sheetDailyTotalization.Range("A:A").Find(What:=checkingMonth, LookAt:=xlPart, LookIn:=xlValues, SearchDirection:=xlNext)
+  Do while rowNum Is Nothing and DateDiff("m", checkingDate, today) '存在しなかった場合，次の日を検索
+    checkingDate = DateAdd("m", 1, Format(checkingDate, "yyyy/mm/dd") + " 00:00:00")
+    checkingDate = Format(checkingDate, "yyyy/mm/dd")
+    Set rowNum = sheetDailyTotalization.Range("A:A").Find(What:=checkingMonth, LookAt:=xlPart, LookIn:=xlValues, SearchDirection:=xlNext)
+  Loop
+
   If rowNum Is Nothing Then
     Application.ScreenUpdating = True ' 画面の更新を復活
     Application.EnableEvents = True 'イベントの発生を有効
