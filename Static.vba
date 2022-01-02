@@ -149,11 +149,10 @@ Continue:
   Loop
 End Sub
 
-Sub monthlyStatic()
 
+Sub monthlyStatic()
   Set sheetDailyTotalization = Worksheets(sheetNameDailyTotalization)
   Set sheetMonthlyTotalization = Worksheets(sheetNameMonthlyTotalization)
-
   today = Format(Date, "yyyy/mm/dd")
   lastRowNumReport = sheetMonthlyTotalization.Cells(Rows.Count, 1).End(xlUp).Row
   checkingMonth = sheetMonthlyTotalization.Cells(lastRowNumReport, 1)
@@ -162,7 +161,6 @@ Sub monthlyStatic()
     checkingMonth = sheetDailyTotalization.Cells(3, 1)
     offsetLine = offsetLine + 1
   End If
-
   If checkingMonth = "" Then ' 過去の参拝者履歴が存在しなかった場合
     MsgBox "シート「参拝者履歴」のA2セルに参拝者履歴が存在しなかったため，統計情報を出力しませんでした"
     Application.ScreenUpdating = True ' 画面の更新を復活
@@ -172,10 +170,17 @@ Sub monthlyStatic()
 
   checkingMonth = Format(checkingMonth, "yyyy/mm/dd")
   Set rowNum = sheetDailyTotalization.Range("A:A").Find(What:=checkingMonth, LookAt:=xlPart, LookIn:=xlValues, SearchDirection:=xlNext)
-  Do while rowNum Is Nothing and DateDiff("m", checkingMonth, today) '存在しなかった場合，次の日を検索
+  Do while rowNum Is Nothing and DateDiff("m", checkingMonth, today) > -1 '存在しなかった場合，次の日を検索
+    sheetMonthlyTotalization.Range("A" & lastRowNumReport + offsetLine).Value = Format(checkingMonth, "yyyy/mm")
+    Dim zeros(12) As Integer
+    Erase zeros
+    Set inputArea = sheetMonthlyTotalization.Range("B" & lastRowNumReport + offsetLine).Resize(1, 13)
+    inputArea.Value = zeros
+
     checkingMonth = DateAdd("m", 1, Format(checkingMonth, "yyyy/mm/dd") + " 00:00:00")
-    checkingMonth = Format(checkingMonth, "yyyy/mm/dd")
+    checkingMonth = Format(checkingMonth, "yyyy/mm")
     Set rowNum = sheetDailyTotalization.Range("A:A").Find(What:=checkingMonth, LookAt:=xlPart, LookIn:=xlValues, SearchDirection:=xlNext)
+    offsetLine = offsetLine + 1
   Loop
 
   If rowNum Is Nothing Then
@@ -183,6 +188,7 @@ Sub monthlyStatic()
     Application.EnableEvents = True 'イベントの発生を有効
     Exit Sub
   end if
+
   lastRowNum = sheetDailyTotalization.Cells(Rows.Count, 1).End(xlUp).Row
   If DateDiff("m", checkingMonth, today) = 0 Then
     Application.ScreenUpdating = True ' 画面の更新を復活
@@ -200,7 +206,6 @@ Sub monthlyStatic()
     Set FoundCell = newData.Find(What:=newLine(0), LookAt:=xlPart, LookIn:=xlValues, SearchDirection:=xlNext)
     If FoundCell Is Nothing Then
       sheetMonthlyTotalization.Range("A" & lastRowNumReport + offsetLine).Value = Format(checkingMonth, "yyyy/mm")
-      Dim zeros(12) As Integer
       Erase zeros
       Set inputArea = sheetMonthlyTotalization.Range("B" & lastRowNumReport + offsetLine).Resize(1, 13)
       inputArea.Value = zeros
