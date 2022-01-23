@@ -1,18 +1,10 @@
-interface Log {
-  date: string;
-  group: string;
-  name: string;
-  id: string;
-  age: string;
-  sex: string;
-  time: string;
-  note?: string;
-}
+import Log from "../Type/Log";
+
 interface Props {
   data: Log[];
 }
 
-function Test(props: Props) {
+function Table(props: Props) {
   return (
     <>
       <table>
@@ -49,4 +41,4 @@ function Test(props: Props) {
   );
 }
 
-export default Test;
+export default Table;
