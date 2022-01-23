@@ -58,14 +58,17 @@ Sub dailyStatic()
 
   ' 前日まで繰り返す
   Do While DateDiff("d", checkingDate, today)
-    ' fileName = Replace(checkingDate, "/", "-")
-    ' Dim csvFile As String
-    ' splitedDate = Split(fileName, "-")
-    ' dirName = splitedDate(0)
+    ' ファイル出力ここから
+    fileName = Replace(checkingDate, "/", "-")
+    Dim csvFile As String
+    splitedDate = Split(fileName, "-")
+    dirName = splitedDate(0)
     ' csvFile = ActiveWorkbook.Path & "/dailyLog/" & dirName & "/" & fileName & ".csv"
-    ' Open csvFile For Output As #1
-    ' Print #1, "所属,参拝者,会員番号,年齢,性別,参拝時間,備考（参拝理由など）," & vbCr;
-    ' Dim j As Long
+    csvFile = ActiveWorkbook.Path & "/dailyLog/" & fileName & ".csv"
+    Open csvFile For Output As #1
+    Print #1, "日付,所属,参拝者,会員番号,年齢,性別,参拝時間,備考（参拝理由など）," & vbCr;
+    Dim j As Long
+    ' ファイル出力ここまで
 
     Dim womanNum As Integer, manNum As Integer
     womanNum = 0
@@ -93,13 +96,14 @@ Sub dailyStatic()
       generation = FoundCell.Offset(0, 4).Value ¥ 10
       generations(generation) = generations(generation) + 1
 
-      ' ファイル出力
-      ' j = 1
-      ' Do While FoundCell.Offset(0, j+1).Value <> ""
-      '   Print #1, FoundCell.Offset(0, j).Value & ",";
-      '   j = j + 1
-      ' Loop
-      ' Print #1, FoundCell.Offset(0, j).Value & vbCr;
+      ' ファイル出力ここから
+      j = 0
+      Do While FoundCell.Offset(0, j+1).Value <> ""
+        Print #1, FoundCell.Offset(0, j).Value & ",";
+        j = j + 1
+      Loop
+      Print #1, FoundCell.Offset(0, j).Value & vbCr;
+      ' ファイル出力ここまで
     End If
 
     Do While Not FoundCell Is Nothing
@@ -115,13 +119,14 @@ Sub dailyStatic()
         generation = FoundCell.Offset(0, 4).Value ¥ 10
         generations(generation) = generations(generation) + 1
 
-        ' ファイル出力
-        ' j = 1
-        ' Do While FoundCell.Offset(0, j+1).Value <> ""
-        '   Print #1, FoundCell.Offset(0, j).Value & ",";
-        '   j = j + 1
-        ' Loop
-        ' Print #1, FoundCell.Offset(0, j).Value & vbCr;
+        ' ファイル出力ここから
+        j = 0
+        Do While FoundCell.Offset(0, j+1).Value <> ""
+          Print #1, FoundCell.Offset(0, j).Value & ",";
+          j = j + 1
+        Loop
+        Print #1, FoundCell.Offset(0, j).Value & vbCr;
+        ' ファイル出力ここまで
       End If
     Loop
     Dim newLine(13)
@@ -145,7 +150,9 @@ Continue:
     checkingDate = DateAdd("d", 1, Format(checkingDate, "yyyy/mm/dd") + " 00:00:00")
     checkingDate = Format(checkingDate, "yyyy/mm/dd")
     offsetLine = offsetLine + 1
-    ' Close #1
+    ' ファイル出力ここから
+    Close #1
+    ' ファイル出力ここまで
   Loop
 End Sub
 
