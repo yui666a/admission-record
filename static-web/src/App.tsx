@@ -1,5 +1,5 @@
 import LogPage from "./Pages/LogPage";
-import Sidebar from "./Pages/Sidebar";
+import Sidebar from "./Components/Sidebar";
 import InitialDisplay from "./Pages/InitialDisplay";
 import { useState } from "react";
 import styled from "styled-components";

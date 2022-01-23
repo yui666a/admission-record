@@ -28,5 +28,5 @@ export default LogPage;
 const Content = styled.div`
   // background: blue;
   height: 100vh;
-  width: calc(100vw - 400px);
+  width: calc(100vw - 200px);
 `;

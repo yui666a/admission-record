@@ -17,5 +17,5 @@ const Bar = styled.div`
   // background: red;
   border: 1px solid grey;
   height: 100vh;
-  width: 300px;
+  width: 200px;
 `;
