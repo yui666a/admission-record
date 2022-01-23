@@ -1,4 +1,4 @@
-import StaticPage from "./Pages/StaticPage";
+import LogPage from "./Pages/LogPage";
 import Sidebar from "./Pages/Sidebar";
 import InitialDisplay from "./Pages/InitialDisplay";
 import { useState } from "react";
@@ -71,7 +71,7 @@ function App() {
       {files.length === 0 ? (
         <InitialDisplay onFilesInput={onFilesInput} />
       ) : (
-        <StaticPage onFileLoad={() => onFileLoad(files)} data={data} />
+        <LogPage onFileLoad={() => onFileLoad(files)} data={data} />
       )}
     </Body>
   );
