@@ -24,7 +24,7 @@ function Table(props: Props) {
           {props.data.map((log) => {
             return (
               <tr key={log.date + log.time + log.name}>
-                <td>{log.date}</td>
+                <td>{log.date.substring(5)}</td>
                 <td>{log.group}</td>
                 <td>{log.name}</td>
                 <td>{log.id}</td>
