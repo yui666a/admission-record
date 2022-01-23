@@ -3,17 +3,7 @@ import Sidebar from "./Pages/Sidebar";
 import InitialDisplay from "./Pages/InitialDisplay";
 import { useState } from "react";
 import styled from "styled-components";
-
-interface Log {
-  date: string;
-  group: string;
-  name: string;
-  id: string;
-  age: string;
-  sex: string;
-  time: string;
-  note?: string;
-}
+import Log from "./Type/Log";
 
 function App() {
   const [data, setData] = useState<Log[]>([]);

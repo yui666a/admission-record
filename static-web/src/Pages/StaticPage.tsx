@@ -1,16 +1,7 @@
 import styled from "styled-components";
-import Test from "./Test";
+import Log from "../Type/Log";
+import Table from "./Table";
 
-interface Log {
-  date: string;
-  group: string;
-  name: string;
-  id: string;
-  age: string;
-  sex: string;
-  time: string;
-  note?: string;
-}
 interface Props {
   onFileLoad: Function;
   data: Log[];
@@ -28,7 +19,7 @@ const StaticPage = function (props: Props) {
       >
         表示
       </button>
-      <Test data={props.data} />
+      <Table data={props.data} />
     </Content>
   );
 };
