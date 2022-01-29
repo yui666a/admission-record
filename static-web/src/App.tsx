@@ -40,7 +40,7 @@ function App() {
         age: log.年齢,
         sex: log.性別,
         time: hour + " : " + min,
-        note: log.備考,
+        note: log.備考_参拝理由など,
       };
     });
     const filteredData = Array.from(

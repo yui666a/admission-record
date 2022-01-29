@@ -45,8 +45,8 @@ const LogPage = function (props: Props) {
               <Row key={log.date + log.time + log.name}>
                 <SmallRow>{log.date.substring(5)}</SmallRow>
                 <SmallRow>{log.time}</SmallRow>
-                <td>{log.group}</td>
-                <NameRow>
+                <MediumRow>{log.group}</MediumRow>
+                <MediumRow>
                   <Tip>
                     会員番号：{log.id}
                     <br />
@@ -54,7 +54,7 @@ const LogPage = function (props: Props) {
                     性別：{log.sex}
                   </Tip>
                   {log.name}
-                </NameRow>
+                </MediumRow>
                 <td>{log.note}</td>
               </Row>
             );
@@ -92,22 +92,25 @@ const Row = styled.tr`
 
 const SmallRow = styled.td`
   position: relative;
-  width: 100px;
+  width: 75px;
 `;
-const NameRow = styled.td`
+const MediumRow = styled.td`
   position: relative;
+  width: 75px;
+  min-width: 120px;
 `;
+
 
 const Tip = styled.div`
   position: absolute;
-  bottom: 25px;
+  top: 0;
   background: rgba(0, 0, 0, 0.7);
   color: white;
   font-weight: bold;
   border-radius: 4px;
   margin: 4px;
   display: none;
-  ${NameRow}:hover & {
+  ${MediumRow}:hover & {
     display: block;
   }
 `;
