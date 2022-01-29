@@ -1,13 +1,21 @@
 import LogPage from "./Pages/LogPage";
+import StaticPage from "./Pages/StaticPage";
 import Sidebar from "./Components/Sidebar";
 import InitialDisplay from "./Pages/InitialDisplay";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import styled from "styled-components";
 import Log from "./Type/Log";
 
+// excelの時間を変換するための定数
+const constantSec = 0.000011572734491;
+const constantMin = 0.000694364069444;
+const constantHour = 0.041661844166667;
+
+type Page = "init" | "static" | "log" | "compareLastYear";
 function App() {
   const [data, setData] = useState<Log[]>([]);
   const [files, setFiles] = useState<File[]>([]);
+  const [mode, setMode] = useState<Page>("init");
 
   function parseCSV(data: string): string[][] {
     return data
@@ -23,6 +31,8 @@ function App() {
         pushedFiles.push(ev.target.files[i]);
       }
       setFiles(pushedFiles);
+      onFileLoad(pushedFiles);
+      setMode("log");
     }
   }
 
@@ -30,6 +40,7 @@ function App() {
     let newLogs: Log[] = [];
     for (let i = 0; i < files.length; i++) {
       let file = files[i];
+      if (file.name.slice(-4) !== ".csv") continue;
       let fileReader = new FileReader();
       fileReader.readAsText(file, "Shift_JIS");
 
@@ -38,6 +49,9 @@ function App() {
         let offset = 1;
         let dateLogs: Log[] = [];
         while (data.length - offset - 1 !== 0) {
+          const time = Number(data[offset][6]) / constantMin;
+          const hour = ("0" + ((time / 60) | 0)).slice(-2);
+          const min = ("0" + (time % 60 | 0)).slice(-2);
           const newLog = {
             date: data[offset][0],
             group: data[offset][1],
@@ -45,7 +59,7 @@ function App() {
             id: data[offset][3],
             age: data[offset][4],
             sex: data[offset][5],
-            time: data[offset][6],
+            time: hour + " : " + min,
             note: data[offset][7],
           };
           dateLogs.push(newLog);
@@ -65,13 +79,26 @@ function App() {
     }
   }
 
+  const sideBar = useMemo(() => {
+    return (
+      <Sidebar
+        onClick={(value: Page) => {
+          setMode(value);
+        }}
+      />
+    );
+  }, []);
+
   return (
     <Body className="App">
-      <Sidebar />
-      {files.length === 0 ? (
+      {sideBar}
+      {(mode === "init" || files.length === 0) && (
         <InitialDisplay onFilesInput={onFilesInput} />
-      ) : (
-        <LogPage onFileLoad={() => onFileLoad(files)} data={data} />
+      )}
+      {mode === "log" && files.length !== 0 && <LogPage data={data} />}
+      {mode === "static" && files.length !== 0 && <StaticPage data={data} />}
+      {mode === "compareLastYear" && files.length !== 0 && (
+        <StaticPage data={data} />
       )}
     </Body>
   );

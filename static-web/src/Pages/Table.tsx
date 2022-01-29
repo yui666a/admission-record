@@ -1,44 +1,105 @@
+import moment from "moment";
+import styled from "styled-components";
+import { useCallback, useState } from "react";
 import Log from "../Type/Log";
 
 interface Props {
   data: Log[];
 }
+const today = moment();
 
 function Table(props: Props) {
+  const [selectedMonth, setMonth] = useState(moment(today).format("YYYY/MM"));
+  const monthlyData = props.data.filter((log) => {
+    return log.date.slice(0, 7) === selectedMonth;
+  });
+
+  const moveMonth = useCallback(
+    (move: number) => {
+      setMonth(moment(selectedMonth).add(move, "month").format("YYYY/MM"));
+    },
+    [selectedMonth]
+  );
+
   return (
     <>
-      <table>
+      <Header>
+        <button onClick={() => moveMonth(-1)}>＜</button>
+        {moment(selectedMonth).format("YYYY年MM月")}
+        <button onClick={() => moveMonth(1)}>＞</button>
+      </Header>
+      <TableWarpper>
         <thead>
           <tr>
             <th>日付</th>
+            <th>時間</th>
             <th>所属</th>
             <th>会員名</th>
-            <th>会員番号</th>
-            <th>年齢</th>
-            <th>性別</th>
-            <th>時間</th>
             <th>備考</th>
           </tr>
         </thead>
         <tbody>
-          {props.data.map((log) => {
+          {monthlyData.map((log) => {
             return (
-              <tr key={log.date + log.time + log.name}>
-                <td>{log.date.substring(5)}</td>
+              <Row key={log.date + log.time + log.name}>
+                <SmallRow>{log.date.substring(5)}</SmallRow>
+                <SmallRow>{log.time}</SmallRow>
                 <td>{log.group}</td>
-                <td>{log.name}</td>
-                <td>{log.id}</td>
-                <td>{log.age}</td>
-                <td>{log.sex}</td>
-                <td>{log.time}</td>
+                <NameRow>
+                  <Tip>
+                    会員番号：{log.id}
+                    <br />
+                    年齢： {log.age} <br />
+                    性別：{log.sex}
+                  </Tip>
+                  {log.name}
+                </NameRow>
                 <td>{log.note}</td>
-              </tr>
+              </Row>
             );
           })}
         </tbody>
-      </table>
+      </TableWarpper>
     </>
   );
 }
 
 export default Table;
+
+const Header = styled.div`
+  display: flex;
+  justify-content: space-between;
+  font-size: 28px;
+  margin-bottom: 20px;
+`;
+
+const TableWarpper = styled.table``;
+const Row = styled.tr`
+  position: relative;
+  &:nth-child(odd) {
+    background-color: #add8e6;
+  }
+`;
+
+const SmallRow = styled.td`
+  position: relative;
+  width: 100px;
+`;
+const NameRow = styled.td`
+  position: relative;
+`;
+
+
+const Tip = styled.div`
+  position: absolute;
+  bottom: 25px;
+  background: rgba(0, 0, 0, 0.7);
+  color: white;
+  font-weight: bold;
+  border-radius: 4px;
+  margin: 4px;
+  display: none;
+  ${NameRow}:hover & {
+    display: block;
+  }
+`;
