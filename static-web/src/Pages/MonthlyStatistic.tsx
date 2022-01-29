@@ -24,7 +24,7 @@ ChartJS.register(
   LineElement,
   Legend,
   Tooltip,
-  ...registerables,
+  ...registerables
   // chartjsPluginDatalabels
 );
 
@@ -46,7 +46,7 @@ const ages = [
   "80～89",
   "90～",
 ];
-const StaticPage = function (props: Props) {
+const MonthlyStatistic = function (props: Props) {
   const [selectedMonth, setMonth] = useState(moment(today).format("YYYY/MM"));
   const moveMonth = useCallback(
     (move: number) => {
@@ -147,14 +147,17 @@ const StaticPage = function (props: Props) {
         <button onClick={() => moveMonth(1)}>＞</button>
       </Header>
       <Chart type="bar" data={graphData} />
-      <GenerationArea style={{ width: "40%", marginTop: "100px" }}>
+      <GenerationArea >
         年齢別
-        <Pie data={graphData2} />
+        <GenerationTable>
+          <span>{moment(monthLabels[0]).format("YYYY年MM月")}</span>
+          <Pie data={graphData2} />
+        </GenerationTable>
       </GenerationArea>
     </Content>
   );
 };
-export default StaticPage;
+export default MonthlyStatistic;
 
 const Content = styled.div`
   width: calc(100vw - 200px);
@@ -173,4 +176,13 @@ const Header = styled.div`
 const GenerationArea = styled.div`
   font-size: 28px;
   margin-bottom: 20px;
+  width: 100%;
+  margin-top: 100px;
+`;
+
+const GenerationTable = styled.div`
+  width: 50%;
+  & span {
+    padding: 100px;
+  }
 `;

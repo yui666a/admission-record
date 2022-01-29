@@ -1,5 +1,6 @@
 import LogPage from "./Pages/LogPage";
-import StaticPage from "./Pages/StaticPage";
+import MonthlyStatistic from "./Pages/MonthlyStatistic";
+import CompareLastYearStatistic from "./Pages/CompareLastYearStatistic";
 import Sidebar from "./Components/Sidebar";
 import InitialDisplay from "./Pages/InitialDisplay";
 import { useMemo, useState } from "react";
@@ -96,9 +97,9 @@ function App() {
         <InitialDisplay onFilesInput={onFilesInput} />
       )}
       {mode === "log" && files.length !== 0 && <LogPage data={data} />}
-      {mode === "static" && files.length !== 0 && <StaticPage data={data} />}
+      {mode === "static" && files.length !== 0 && <MonthlyStatistic data={data} />}
       {mode === "compareLastYear" && files.length !== 0 && (
-        <StaticPage data={data} />
+        <CompareLastYearStatistic data={data} />
       )}
     </Body>
   );
