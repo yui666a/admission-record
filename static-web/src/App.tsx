@@ -8,9 +8,9 @@ import styled from "styled-components";
 import Log from "./Type/Log";
 
 // excelの時間を変換するための定数
-const constantSec = 0.000011572734491;
+// const constantSec = 0.000011572734491;
 const constantMin = 0.000694364069444;
-const constantHour = 0.041661844166667;
+// const constantHour = 0.041661844166667;
 
 type Page = "init" | "static" | "log" | "compareLastYear";
 function App() {
@@ -90,17 +90,44 @@ function App() {
     );
   }, []);
 
+  function onInput(data: string) {
+    let dateLogs: Log[] = [];
+    JSON.parse(data).forEach((d: any) => {
+      const time = Number(d.参拝時間) / constantMin;
+      const hour = ("0" + ((time / 60) | 0)).slice(-2);
+      const min = ("0" + (time % 60 | 0)).slice(-2);
+
+      const newLog = {
+        date: d.参拝日付,
+        group: d.所属,
+        name: d.参拝者,
+        id: d.会員番号,
+        age: d.年齢,
+        sex: d.性別,
+        time: hour + " : " + min,
+        note: d.備考,
+      };
+      dateLogs.push(newLog);
+    });
+    const filteredData = Array.from(
+      new Map(
+        dateLogs.map((log) => [log.date + log.time + log.name, log])
+      ).values()
+    );
+    const sortedData = filteredData.sort(function (a: Log, b: Log) {
+      return a.date > b.date ? -1 : 1;
+    });
+    setData(sortedData);
+    setMode("log");
+  }
+
   return (
     <Body className="App">
       {sideBar}
-      {(mode === "init" || files.length === 0) && (
-        <InitialDisplay onFilesInput={onFilesInput} />
-      )}
-      {mode === "log" && files.length !== 0 && <LogPage data={data} />}
-      {mode === "static" && files.length !== 0 && <MonthlyStatistic data={data} />}
-      {mode === "compareLastYear" && files.length !== 0 && (
-        <CompareLastYearStatistic data={data} />
-      )}
+      {mode === "init" && <InitialDisplay onFilesInput={onInput} />}
+      {mode === "log" && <LogPage data={data} />}
+      {mode === "static" && <MonthlyStatistic data={data} />}
+      {mode === "compareLastYear" && <CompareLastYearStatistic data={data} />}
     </Body>
   );
 }
