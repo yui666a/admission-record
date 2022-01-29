@@ -35,6 +35,7 @@ const Component = (props: Props) => {
       <form style={{ display: "none" }}>
         <input
           type="file"
+          // xlsm, slsxを許可
           accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel.sheet.macroenabled.12"
           ref={fileInput}
           onChange={(e) => {
