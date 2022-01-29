@@ -108,14 +108,12 @@ const MonthlyStatistic = function (props: Props) {
   };
 
   let a = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
-  monthLabels.forEach((month) => {
-    props.data.forEach((log) => {
-      if (log.date.slice(0, 7) === month) {
-        let generation = (parseInt(log.age) / 10) | 0;
-        if (generation > 9) generation = 9;
-        a[generation]++;
-      }
-    });
+  props.data.forEach((log) => {
+    if (log.date.slice(0, 7) === selectedMonth) {
+      let generation = (parseInt(log.age) / 10) | 0;
+      if (generation > 9) generation = 9;
+      a[generation]++;
+    }
   });
 
   const graphData2 = {
@@ -147,10 +145,10 @@ const MonthlyStatistic = function (props: Props) {
         <button onClick={() => moveMonth(1)}>＞</button>
       </Header>
       <Chart type="bar" data={graphData} />
-      <GenerationArea >
+      <GenerationArea>
         年齢別
         <GenerationTable>
-          <span>{moment(monthLabels[0]).format("YYYY年MM月")}</span>
+          <span>{moment(selectedMonth).format("YYYY年MM月")}</span>
           <Pie data={graphData2} />
         </GenerationTable>
       </GenerationArea>
