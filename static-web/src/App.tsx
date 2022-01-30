@@ -3,7 +3,7 @@ import MonthlyStatistic from "./Pages/MonthlyStatistic";
 import CompareLastYearStatistic from "./Pages/CompareLastYearStatistic";
 import Sidebar from "./Components/Sidebar";
 import InitialDisplay from "./Pages/InitialDisplay";
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import styled from "styled-components";
 import Log from "./Type/Log";
 
@@ -27,7 +27,7 @@ function App() {
     );
   }, []);
 
-  function onInput(data: string) {
+  const onInput = useCallback((data: string) => {
     const dateLogs: Log[] = JSON.parse(data).map((log: any) => {
       const time = Number(log.参拝時間) / constantMin;
       const hour = ("0" + ((time / 60) | 0)).slice(-2);
@@ -53,15 +53,17 @@ function App() {
     });
     setData(sortedData);
     setMode("log");
-  }
+  }, []);
 
   return (
     <Body className="App">
       {sideBar}
-      {mode === "init" && <InitialDisplay onFilesInput={onInput} />}
-      {mode === "log" && <LogPage data={data} />}
-      {mode === "static" && <MonthlyStatistic data={data} />}
-      {mode === "compareLastYear" && <CompareLastYearStatistic data={data} />}
+      <Content>
+        {mode === "init" && <InitialDisplay onFilesInput={onInput} />}
+        {mode === "log" && <LogPage data={data} />}
+        {mode === "static" && <MonthlyStatistic data={data} />}
+        {mode === "compareLastYear" && <CompareLastYearStatistic data={data} />}
+      </Content>
     </Body>
   );
 }
@@ -69,4 +71,12 @@ function App() {
 export default App;
 const Body = styled.div`
   display: flex;
+`;
+
+const Content = styled.div`
+  width: calc(100vw - 200px);
+  display: flex;
+  flex-direction: column;
+  align-content: center;
+  padding: 50px;
 `;

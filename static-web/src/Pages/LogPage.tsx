@@ -12,6 +12,7 @@ const today = moment();
 const LogPage = function (props: Props) {
   const [selectedMonth, setMonth] = useState(moment(today).format("YYYY/MM"));
   const monthlyData = props.data.filter((log) => {
+    // format YYYY/MM
     return log.date.slice(0, 7) === selectedMonth;
   });
 
@@ -23,7 +24,7 @@ const LogPage = function (props: Props) {
   );
 
   return (
-    <Content>
+    <>
       <Header>
         <button onClick={() => moveMonth(-1)}>＜</button>
         {moment(selectedMonth).format("YYYY年MM月")}
@@ -43,7 +44,17 @@ const LogPage = function (props: Props) {
           {monthlyData.map((log) => {
             return (
               <Row key={log.date + log.time + log.name}>
-                <SmallRow>{log.date.substring(5)}</SmallRow>
+                <MediumRow>
+                  <Tip>
+                    {
+                      monthlyData.filter((data) => {
+                        return data.date === log.date;
+                      }).length
+                    }
+                    名
+                  </Tip>
+                  {log.date.substring(5)}
+                </MediumRow>
                 <SmallRow>{log.time}</SmallRow>
                 <MediumRow>{log.group}</MediumRow>
                 <MediumRow>
@@ -61,19 +72,10 @@ const LogPage = function (props: Props) {
           })}
         </tbody>
       </TableWarpper>
-    </Content>
+    </>
   );
 };
 export default LogPage;
-
-const Content = styled.div`
-  height: 100vh;
-  width: calc(100vw - 200px);
-  display: flex;
-  flex-direction: column;
-  align-content: center;
-  padding: 50px;
-`;
 
 const Header = styled.div`
   display: flex;
@@ -100,17 +102,20 @@ const MediumRow = styled.td`
   min-width: 120px;
 `;
 
-
 const Tip = styled.div`
   position: absolute;
-  top: 0;
+  bottom: 30px;
   background: rgba(0, 0, 0, 0.7);
   color: white;
   font-weight: bold;
   border-radius: 4px;
   margin: 4px;
   display: none;
+  z-index: 5;
   ${MediumRow}:hover & {
+    display: block;
+  }
+  ${SmallRow}:hover & {
     display: block;
   }
 `;
