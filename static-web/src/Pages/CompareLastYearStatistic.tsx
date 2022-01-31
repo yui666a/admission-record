@@ -1,4 +1,6 @@
+import { useCallback, useState } from "react";
 import styled from "styled-components";
+import moment from "moment";
 import {
   Chart as ChartJS,
   LinearScale,
@@ -10,11 +12,8 @@ import {
   Tooltip,
   registerables,
 } from "chart.js";
-// import chartjsPluginDatalabels from "chartjs-plugin-datalabels";
 import { Chart, Pie } from "react-chartjs-2";
 import Log from "../Type/Log";
-import { useCallback, useState } from "react";
-import moment from "moment";
 
 ChartJS.register(
   LinearScale,
@@ -25,7 +24,6 @@ ChartJS.register(
   Legend,
   Tooltip,
   ...registerables
-  // chartjsPluginDatalabels
 );
 
 interface Props {
@@ -57,6 +55,7 @@ const backgroundColor = [
   "#cc528b",
   "#9460a0",
 ];
+
 const CompareLastYearStatistic = function (props: Props) {
   const [selectedMonth, setMonth] = useState(moment(today).format("YYYY/MM"));
   const moveMonth = useCallback(
@@ -69,11 +68,12 @@ const CompareLastYearStatistic = function (props: Props) {
   //2次元配列を転置
   const transpose = (a: number[][]) => a[0].map((_, c) => a.map((r) => r[c]));
 
+  // 選択月と前年選択月のラベルを格納
   let monthLabels: string[] = [];
   for (let i = -1; i <= 0; ++i) {
     monthLabels.push(moment(selectedMonth).add(i, "year").format("YYYY/MM"));
   }
-  
+
   const monthlyAdmissions = monthLabels.map((month) => {
     // 月別の参拝者数を計算
     let count = [0, 0, 0]; // [man, woman, all]
@@ -106,14 +106,14 @@ const CompareLastYearStatistic = function (props: Props) {
         backgroundColor: "rgba(54,164,235,0.5)",
       },
       {
-        type: "bar" as const, // グラフタイプを指定
+        type: "bar" as const,
         data: genderAdmissions[1],
         label: "女性",
         borderColor: "rgba(254,97,132,0.8)",
         backgroundColor: "rgba(254,97,132,0.5)",
       },
       {
-        type: "line" as const, // グラフタイプを指定
+        type: "line" as const,
         data: genderAdmissions[2],
         label: "全体",
         lineTension: 0,

@@ -1,18 +1,20 @@
+import { useCallback, useMemo, useState } from "react";
+import styled from "styled-components";
+import Log from "./Type/Log";
 import LogPage from "./Pages/LogPage";
 import MonthlyStatistic from "./Pages/MonthlyStatistic";
 import CompareLastYearStatistic from "./Pages/CompareLastYearStatistic";
 import Sidebar from "./Components/Sidebar";
 import InitialDisplay from "./Pages/InitialDisplay";
-import { useCallback, useMemo, useState } from "react";
-import styled from "styled-components";
-import Log from "./Type/Log";
 
 // excelの時間を変換するための定数
+// 1日を 0~約1で表す
 // const constantSec = 0.000011572734491;
 const constantMin = 0.000694364069444;
 // const constantHour = 0.041661844166667;
 
 type Page = "init" | "static" | "log" | "compareLastYear";
+
 function App() {
   const [data, setData] = useState<Log[]>([]);
   const [mode, setMode] = useState<Page>("init");
@@ -29,6 +31,7 @@ function App() {
 
   const onInput = useCallback((data: string) => {
     const dateLogs: Log[] = JSON.parse(data).map((log: any) => {
+      // 時間は計算による若干の誤差あり
       const time = Number(log.参拝時間) / constantMin;
       const hour = ("0" + ((time / 60) | 0)).slice(-2);
       const min = ("0" + (time % 60 | 0)).slice(-2);
@@ -45,6 +48,7 @@ function App() {
     });
     const filteredData = Array.from(
       new Map(
+        // 参拝日時，参拝者が同一のログを省く（１度に複数回記録されたとみなす）
         dateLogs.map((log) => [log.date + log.time + log.name, log])
       ).values()
     );

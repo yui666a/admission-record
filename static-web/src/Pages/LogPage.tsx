@@ -30,7 +30,7 @@ const LogPage = function (props: Props) {
         {moment(selectedMonth).format("YYYY年MM月")}
         <button onClick={() => moveMonth(1)}>＞</button>
       </Header>
-      <TableWarpper>
+      <table>
         <thead>
           <tr>
             <th>日付</th>
@@ -44,8 +44,9 @@ const LogPage = function (props: Props) {
           {monthlyData.map((log) => {
             return (
               <Row key={log.date + log.time + log.name}>
-                <MediumRow>
+                <MediumColumn>
                   <Tip>
+                    計
                     {
                       monthlyData.filter((data) => {
                         return data.date === log.date;
@@ -54,10 +55,10 @@ const LogPage = function (props: Props) {
                     名
                   </Tip>
                   {log.date.substring(5)}
-                </MediumRow>
-                <SmallRow>{log.time}</SmallRow>
-                <MediumRow>{log.group}</MediumRow>
-                <MediumRow>
+                </MediumColumn>
+                <SmallColumn>{log.time}</SmallColumn>
+                <MediumColumn>{log.group}</MediumColumn>
+                <MediumColumn>
                   <Tip>
                     会員番号：{log.id}
                     <br />
@@ -65,13 +66,13 @@ const LogPage = function (props: Props) {
                     性別：{log.sex}
                   </Tip>
                   {log.name}
-                </MediumRow>
-                <td>{log.note}</td>
+                </MediumColumn>
+                <MediumColumn>{log.note}</MediumColumn>
               </Row>
             );
           })}
         </tbody>
-      </TableWarpper>
+      </table>
     </>
   );
 };
@@ -84,7 +85,6 @@ const Header = styled.div`
   margin-bottom: 20px;
 `;
 
-const TableWarpper = styled.table``;
 const Row = styled.tr`
   position: relative;
   &:nth-child(odd) {
@@ -92,13 +92,13 @@ const Row = styled.tr`
   }
 `;
 
-const SmallRow = styled.td`
+const SmallColumn = styled.td`
   position: relative;
   width: 75px;
 `;
-const MediumRow = styled.td`
+const MediumColumn = styled.td`
   position: relative;
-  width: 75px;
+  width: 120px;
   min-width: 120px;
 `;
 
@@ -112,10 +112,10 @@ const Tip = styled.div`
   margin: 4px;
   display: none;
   z-index: 5;
-  ${MediumRow}:hover & {
+  ${MediumColumn}:hover & {
     display: block;
   }
-  ${SmallRow}:hover & {
+  ${SmallColumn}:hover & {
     display: block;
   }
 `;

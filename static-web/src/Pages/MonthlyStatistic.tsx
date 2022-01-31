@@ -1,4 +1,6 @@
+import { useCallback, useState } from "react";
 import styled from "styled-components";
+import moment from "moment";
 import {
   Chart as ChartJS,
   LinearScale,
@@ -10,11 +12,8 @@ import {
   Tooltip,
   registerables,
 } from "chart.js";
-// import chartjsPluginDatalabels from "chartjs-plugin-datalabels";
 import { Chart, Pie } from "react-chartjs-2";
 import Log from "../Type/Log";
-import { useCallback, useState } from "react";
-import moment from "moment";
 
 ChartJS.register(
   LinearScale,
@@ -25,7 +24,6 @@ ChartJS.register(
   Legend,
   Tooltip,
   ...registerables
-  // chartjsPluginDatalabels
 );
 
 interface Props {
@@ -57,6 +55,7 @@ const backgroundColor = [
   "#cc528b",
   "#9460a0",
 ];
+
 const MonthlyStatistic = function (props: Props) {
   const [selectedMonth, setMonth] = useState(moment(today).format("YYYY/MM"));
   const moveMonth = useCallback(
@@ -65,16 +64,23 @@ const MonthlyStatistic = function (props: Props) {
     },
     [selectedMonth]
   );
-  //2次元配列を転置
+
+  //2次元配列を転置させる関数
   const transpose = (a: number[][]) => a[0].map((_, c) => a.map((r) => r[c]));
 
+  // 選択されている月から過去一年分の月を格納
   let monthLabels: string[] = [];
   for (let i = -12; i <= 0; ++i) {
     monthLabels.push(moment(selectedMonth).add(i, "month").format("YYYY/MM"));
   }
 
+  /**
+   * 月別の参拝者数を計算
+   *
+   * @returns number[][]
+   * ex) [[boy1, girl1, total1], [boy2, girl2, total2], ...]
+   */
   const monthlyAdmissions = monthLabels.map((month) => {
-    // 月別の参拝者数を計算
     let count = [0, 0, 0]; // [man, woman, all]
     props.data.forEach((log) => {
       if (log.date.slice(0, 7) === month) {
@@ -94,8 +100,10 @@ const MonthlyStatistic = function (props: Props) {
   });
   const genderAdmissions = transpose(monthlyAdmissions);
 
+  // 世代別は要素数が確定しているため　list
   let generations = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
-  let group = {};
+  // groupは未知のため　object
+  let groups = {};
   props.data.forEach((log) => {
     if (log.date.slice(0, 7) === selectedMonth) {
       // 世代別集計
@@ -104,18 +112,18 @@ const MonthlyStatistic = function (props: Props) {
       generations[generation]++;
 
       // グループ別集計
-      if (log.group in group) {
-        const key = log.group as keyof typeof group;
-        group = { ...group, [key]: group[key] + 1 };
+      if (log.group in groups) {
+        const key = log.group as keyof typeof groups;
+        groups = { ...groups, [key]: groups[key] + 1 };
       } else {
-        group = { ...group, [log.group]: 1 };
+        groups = { ...groups, [log.group]: 1 };
       }
     }
   });
-  const groupLabels = Object.keys(group);
-  const groupValues = Object.values(group);
+  const groupLabels = Object.keys(groups);
+  const groupValues = Object.values(groups);
 
-  const graphData = {
+  const genderData = {
     labels: monthLabels,
     datasets: [
       {
@@ -170,7 +178,10 @@ const MonthlyStatistic = function (props: Props) {
         <button onClick={() => moveMonth(-1)}>＜</button>
         <button onClick={() => moveMonth(1)}>＞</button>
       </Header>
-      <Chart type="bar" data={graphData} />
+
+      {/* 男女別 */}
+      <Chart type="bar" data={genderData} />
+
       <DetailArea>
         <div style={{ width: "100%" }}>
           {moment(selectedMonth).format("YYYY年MM月")}
